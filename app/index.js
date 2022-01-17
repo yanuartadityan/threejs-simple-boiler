@@ -7,7 +7,7 @@ window.application = new Application({
     planeHelper: false,
     gridHelper: false,
     axisHelper: true,
-    statsHelper: false,
+    statsHelper: true,
     enableDebug: {
         enabled: true,
         gui: 'tweakpane'    // guify, tweakpane

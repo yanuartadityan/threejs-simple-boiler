@@ -134,6 +134,7 @@ export default class Application {
 
         this.addShadowedLight( 2, 2, 2, 0xffffff, 1.35 );
         this.addShadowedLight( 0.5, 1, - 1, 0xffaa00, 1 );
+        this.addSpotLight(0, 2, 0, 0xff0000, 1);
     }
 
     initGuify() {
@@ -251,6 +252,21 @@ export default class Application {
         directionalLight.shadow.bias = - 0.002;
 
         this.scene.add(directionalLight);
+    }
+
+    addSpotLight( x, y, z, color, intensity) {
+        const spotLight = new THREE.SpotLight( color, intensity);
+        spotLight.position.set(x, y, z);
+
+        spotLight.castShadow = true;
+
+        spotLight.shadow.mapSize.width = 20;
+        spotLight.shadow.mapSize.height = 20;
+        spotLight.shadow.camera.near = 100;
+        spotLight.shadow.camera.far = 1000;
+        spotLight.shadow.camera.fov = 50;
+
+        this.scene.add(spotLight);
     }
 
     onWindowResize() {
