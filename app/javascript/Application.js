@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { Ground } from './Grid.js';
 import { loadGltf } from './Loader';
+import { Pane } from 'tweakpane';
 
 
 export default class Application {
@@ -14,7 +15,8 @@ export default class Application {
         this.planeHelper = _options.planeHelper;
         this.axisHelper = _options.axisHelper;
         this.gridHelper = _options.gridHelper;
-        this.enableDebug = _options.debug;
+        this.enableDebug = _options.enableDebug.enabled;
+        this.debugGui = _options.enableDebug.gui;
         this.statsHelper = _options.statsHelper;
 
         // param
@@ -46,7 +48,7 @@ export default class Application {
     init() {
         // scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x5b6677);
+        this.scene.background = new THREE.Color(0x95a7c3);
         this.scene.fog = new THREE.Fog(this.scene.background, 1, this.cameraFustrum);
 
         // camera
@@ -91,15 +93,13 @@ export default class Application {
         this.control.maxPolarAngle = 0.8 * Math.PI / 2;
         
         // camera target
-        this.camera.position.set(2.0, 1.5, 1.0);
+        this.camera.position.set(2.3, 1.5, 1.9);
         this.target = new THREE.Vector3(0, 0, 0);
         this.camera.lookAt(this.target);
 
         this._camPos = new THREE.Vector3;
         this.camera.getWorldPosition(this._camPos);
-        this._camPosStr =  `x: ${this._camPos.x.toFixed(1)}, 
-                            y: ${this._camPos.y.toFixed(1)}, 
-                            z: ${this._camPos.z.toFixed(1)}`;
+        this._camPosStr =  `x: ${this._camPos.x.toFixed(1)}, y: ${this._camPos.y.toFixed(1)}, z: ${this._camPos.z.toFixed(1)}`;
 
         // fps stats
         if (this.statsHelper) {
@@ -108,9 +108,14 @@ export default class Application {
         }
 
         // gui helper
-        if (this.enableDebug) {
+        if (this.debugGui == 'guify') {
             // guify
-            this.initGui();
+            this.initGuify();
+        }
+
+        if (this.debugGui == 'tweakpane') {
+            // tweakpane
+            this.initTweak();
         }
 
         // listener during resize
@@ -131,7 +136,7 @@ export default class Application {
         this.addShadowedLight( 0.5, 1, - 1, 0xffaa00, 1 );
     }
 
-    initGui() {
+    initGuify() {
         // enable gui
         this.debug = new guify({
             title: 'test app',
@@ -197,6 +202,33 @@ export default class Application {
         });
     }
 
+    initTweak() {
+        this.debug = new Pane({
+            title: 'parameters',
+            expanded: true
+        });
+
+        // Populate the GUI
+        const param = {
+            someNumber: 10,
+            rangeMin: 0,
+            rangeMax: 64,
+            step: 4,
+            logNumber: 20,
+            interval: [15, 30],
+            checkbox: false,
+            testText: 'this is threejs boiler',
+            options: ['Option 1', 'Option 2', 'Option 3'],
+            optionsDefault: 'Option 1',
+            rgbColor:'rgb(255, 0, 0)', 
+            hexColor:'#00FF00',
+            file: null,
+            cameraPos: 5       
+        };
+
+        this.debug.addMonitor(this, '_camPosStr');
+    }
+
     initWorld() {
         loadGltf(this.scene);
     }
@@ -232,17 +264,31 @@ export default class Application {
         window.requestAnimationFrame(this.animate.bind(this));
     }
 
+    updateDebug() {
+        if (this.enableDebug){
+            // update camera positions
+            this.camera.getWorldPosition(this._camPos);
+            this._camPosStr =  `x: ${this._camPos.x.toFixed(1)}, y: ${this._camPos.y.toFixed(1)}, z: ${this._camPos.z.toFixed(1)}`;
+        }
+    }
+
+    updateStats() {
+        if (this.statsHelper) {
+            this.stats.update();
+        }
+    }
+
     render() {
         // this.camera.lookAt(this.target);
         this.control.update();
 
-        if (this.enableDebug){
-            this.camera.getWorldPosition(this._camPos);
-        }
+        // update all debug parts
+        this.updateDebug();
 
-        if (this.statsHelper){
-            this.stats.update() 
-        };
+        // update stats
+        this.updateStats();
+
+        this.debug.refresh();
 
         // render
         this.renderer.render(this.scene, this.camera);

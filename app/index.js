@@ -8,5 +8,8 @@ window.application = new Application({
     gridHelper: false,
     axisHelper: true,
     statsHelper: false,
-    debug: true
+    enableDebug: {
+        enabled: true,
+        gui: 'tweakpane'    // guify, tweakpane
+    },
 })

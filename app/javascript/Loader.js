@@ -20,13 +20,15 @@ export function loadGltf(scene) {
     //     scene.add(mesh);
     // });
 
-    loader.load(bmw, (gltf) => {
+    loader.load(porsche, (gltf) => {
         const mesh = gltf.scene.children[0];
 
         // do something with the mesh
-        const s = 0.00045;
+        const s = 0.45;
         mesh.scale.set(s, s, s);
-        mesh.position.set(0, 0, 0);
+        mesh.position.set(-0.0, 0, 0.8);
+        mesh.rotation.set(-0.5 * Math.PI, 0, 0);
+        console.log(mesh.rotation);
 
         mesh.castShadow = true;
         mesh.receiveShadow = true;
